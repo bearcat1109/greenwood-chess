@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Club Rating Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #3498db);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .players-list {
+            grid-column: 1 / -1;
+        }
+
+        .player-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .player-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .player-name {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+
+        .player-rating {
+            background: linear-gradient(135deg, #3498db, #3498db);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .tournament-history {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+
+        .game-form {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .game-result-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .result-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .result-btn.selected {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .result-btn:hover {
+            border-color: #3498db;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #3498db;
+            transform: translateX(450px);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast.toast-success {
+            border-left-color: #27ae60;
+            color: #27ae60;
+        }
+
+        .toast.toast-success::before {
+            content: "✓";
+            background: #27ae60;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .toast.toast-error {
+            border-left-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .toast.toast-error::before {
+            content: "⚠";
+            background: #e74c3c;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #95a5a6;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toast-close:hover {
+            color: #7f8c8d;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+        
+        <div class="header">
+            <h1>Mrs. Berres' Greenwood Chess Club Ratings</h1>
+            <p>Game Entry & Leaderboard</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>Add New Player</h2>
+                <div class="form-group">
+                    <label for="playerName">Player Name:</label>
+                    <input type="text" id="playerName" placeholder="Enter player name">
+                </div>
+                <div class="form-group">
+                    <label for="initialRating">Initial Rating:</label>
+                    <input type="number" id="initialRating" value="1000" min="0">
+                </div>
+                <button class="btn" onclick="addPlayer()">Add Player</button>
+            </div>
+
+            <div class="section">
+                <h2>Record Game Result</h2>
+                <div class="game-form">
+                    <div class="form-group">
+                        <label for="player1">Player 1:</label>
+                        <select id="player1">
+                            <option value="">Select Player 1</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="player2">Player 2:</label>
+                        <select id="player2">
+                            <option value="">Select Player 2</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Game Result:</label>
+                        <div class="game-result-buttons">
+                            <button class="result-btn" onclick="selectResult('player1_win')">Player 1 Wins</button>
+                            <button class="result-btn" onclick="selectResult('draw')">Draw</button>
+                            <button class="result-btn" onclick="selectResult('player2_win')">Player 2 Wins</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="isFirstTournament"> First tournament game?
+                        </label>
+                    </div>
+
+                    <button class="btn" onclick="recordGame()">Record Game</button>
+                </div>
+            </div>
+
+            <div class="section players-list">
+                <h2>Tournament Management</h2>
+                <div class="form-group">
+                    <label for="tournamentName">Tournament Name:</label>
+                    <input type="text" id="tournamentName" placeholder="Enter tournament name">
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn" onclick="startTournament()">Start Tournament</button>
+                    <button class="btn btn-secondary" onclick="endTournament()">End Tournament</button>
+                    <button class="btn" onclick="exportData()">Export Data</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import Data</button>
+                    <button class="btn btn-danger" onclick="resetAllData()">Reset All Data</button>
+                </div>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPlayers">0</div>
+                        <div>Total Players</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalGames">0</div>
+                        <div>Games Played</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="currentTournament">None</div>
+                        <div>Current Tournament</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section players-list">
+                <h2>Players & Ratings</h2>
+                <div id="playersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // In-memory data storage
+        let players = [];
+        let gameHistory = [];
+        let currentTournament = null;
+        let gameResult = null;
+
+        // Initialize the application
+        function init() {
+            loadData();
+            updatePlayersList();
+            updateDropdowns();
+            updateStats();
+        }
+
+        // Data persistence functions
+        function saveData() {
+            const data = {
+                players: players,
+                gameHistory: gameHistory,
+                currentTournament: currentTournament,
+                lastSaved: new Date().toISOString(),
+                version: "1.0"
+            };
+            
+            try {
+                localStorage.setItem('chessClubData', JSON.stringify(data));
+                console.log('Data saved to localStorage');
+            } catch (error) {
+                console.error('Failed to save to localStorage:', error);
+                showAlert('Warning: Data could not be saved automatically', 'error');
+            }
+        }
+
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem('chessClubData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    players = data.players || [];
+                    gameHistory = data.gameHistory || [];
+                    currentTournament = data.currentTournament || null;
+                    
+                    // Ensure player IDs are numbers (in case of import issues)
+                    players.forEach(player => {
+                        if (typeof player.id === 'string') {
+                            player.id = parseInt(player.id);
+                        }
+                    });
+                    
+                    console.log('Data loaded from localStorage');
+                    if (data.lastSaved) {
+                        showAlert(`Data restored from ${new Date(data.lastSaved).toLocaleString()}`, 'success');
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load from localStorage:', error);
+                showAlert('Warning: Could not load saved data', 'error');
+            }
+        }
+
+        function exportData() {
+            const data = {
+                players: players,
+                gameHistory: gameHistory,
+                currentTournament: currentTournament,
+                exportDate: new Date().toISOString(),
+                version: "1.0",
+                clubName: "Chess Club Rating Data"
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `chess-club-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showAlert('Data exported successfully!', 'success');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!data.players || !Array.isArray(data.players)) {
+                        throw new Error('Invalid data format: missing players array');
+                    }
+                    
+                    // Confirm import
+                    const confirmMessage = `Import data with ${data.players.length} players and ${(data.gameHistory || []).length} games?\n\nThis will replace all current data!`;
+                    if (!confirm(confirmMessage)) {
+                        return;
+                    }
+                    
+                    // Import data
+                    players = data.players || [];
+                    gameHistory = data.gameHistory || [];
+                    currentTournament = data.currentTournament || null;
+                    
+                    // Ensure data integrity
+                    players.forEach((player, index) => {
+                        if (!player.id) player.id = Date.now() + index;
+                        if (!player.name) player.name = `Player ${index + 1}`;
+                        if (typeof player.rating !== 'number') player.rating = 1000;
+                        if (typeof player.gamesPlayed !== 'number') player.gamesPlayed = 0;
+                        if (typeof player.wins !== 'number') player.wins = 0;
+                        if (typeof player.losses !== 'number') player.losses = 0;
+                        if (typeof player.draws !== 'number') player.draws = 0;
+                        if (typeof player.tournaments !== 'number') player.tournaments = 0;
+                    });
+                    
+                    // Save imported data and update UI
+                    saveData();
+                    updatePlayersList();
+                    updateDropdowns();
+                    updateStats();
+                    
+                    showAlert(`Data imported successfully! ${players.length} players loaded.`, 'success');
+                    
+                } catch (error) {
+                    console.error('Import failed:', error);
+                    showAlert(`Import failed: ${error.message}`, 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showAlert('Error reading file', 'error');
+            };
+            
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        function addPlayer() {
+            const name = document.getElementById('playerName').value.trim();
+            const rating = parseInt(document.getElementById('initialRating').value) || 1000;
+
+            if (!name) {
+                showAlert('Please enter a player name', 'error');
+                return;
+            }
+
+            if (players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showAlert('Player already exists', 'error');
+                return;
+            }
+
+            const player = {
+                id: Date.now(),
+                name: name,
+                rating: rating,
+                gamesPlayed: 0,
+                tournaments: 0,
+                wins: 0,
+                losses: 0,
+                draws: 0
+            };
+
+            players.push(player);
+            document.getElementById('playerName').value = '';
+            document.getElementById('initialRating').value = '1000';
+            
+            saveData();
+            updatePlayersList();
+            updateDropdowns();
+            updateStats();
+            showAlert(`Player ${name} added successfully!`, 'success');
+        }
+
+        function updatePlayersList() {
+            const container = document.getElementById('playersList');
+            
+            // Sort players by rating (descending)
+            const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
+            
+            container.innerHTML = sortedPlayers.map((player, index) => `
+                <div class="player-card">
+                    <div class="player-info">
+                        <div class="player-name">#${index + 1} ${player.name}</div>
+                        <div class="player-rating">${player.rating}</div>
+                        <div class="tournament-history">
+                            ${player.gamesPlayed} games • ${player.wins}W-${player.losses}L-${player.draws}D
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="removePlayer(${player.id})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function updateDropdowns() {
+            const player1Select = document.getElementById('player1');
+            const player2Select = document.getElementById('player2');
+            
+            const options = players.map(p => `<option value="${p.id}">${p.name} (${p.rating})</option>`).join('');
+            
+            player1Select.innerHTML = '<option value="">Select Player 1</option>' + options;
+            player2Select.innerHTML = '<option value="">Select Player 2</option>' + options;
+        }
+
+        function selectResult(result) {
+            document.querySelectorAll('.result-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            gameResult = result;
+        }
+
+        function recordGame() {
+            const player1Id = parseInt(document.getElementById('player1').value);
+            const player2Id = parseInt(document.getElementById('player2').value);
+            const isFirstTournament = document.getElementById('isFirstTournament').checked;
+
+            if (!player1Id || !player2Id) {
+                showAlert('Please select both players', 'error');
+                return;
+            }
+
+            if (player1Id === player2Id) {
+                showAlert('Please select different players', 'error');
+                return;
+            }
+
+            if (!gameResult) {
+                showAlert('Please select a game result', 'error');
+                return;
+            }
+
+            const player1 = players.find(p => p.id === player1Id);
+            const player2 = players.find(p => p.id === player2Id);
+
+            // Calculate rating changes based on the rules
+            let player1Change = 0;
+            let player2Change = 0;
+
+            if (isFirstTournament) {
+                // First tournament: ±15 points
+                if (gameResult === 'player1_win') {
+                    player1Change = 15;
+                    player2Change = -15;
+                    player1.wins++;
+                    player2.losses++;
+                } else if (gameResult === 'player2_win') {
+                    player1Change = -15;
+                    player2Change = 15;
+                    player1.losses++;
+                    player2.wins++;
+                } else { // draw
+                    player1Change = 0;
+                    player2Change = 0;
+                    player1.draws++;
+                    player2.draws++;
+                }
+            } else {
+                // Future tournaments: complex rating system
+                const player1IsHigher = player1.rating > player2.rating;
+                
+                if (gameResult === 'player1_win') {
+                    if (player1IsHigher) {
+                        player1Change = 10;
+                        player2Change = -15;
+                    } else {
+                        player1Change = 15;
+                        player2Change = -5;
+                    }
+                    player1.wins++;
+                    player2.losses++;
+                } else if (gameResult === 'player2_win') {
+                    if (player1IsHigher) {
+                        player1Change = -5;
+                        player2Change = 15;
+                    } else {
+                        player1Change = -15;
+                        player2Change = 10;
+                    }
+                    player1.losses++;
+                    player2.wins++;
+                } else { // draw
+                    if (player1IsHigher) {
+                        player1Change = -5;
+                        player2Change = 5;
+                    } else {
+                        player1Change = 5;
+                        player2Change = -5;
+                    }
+                    player1.draws++;
+                    player2.draws++;
+                }
+            }
+
+            // Apply rating changes
+            player1.rating += player1Change;
+            player2.rating += player2Change;
+            player1.gamesPlayed++;
+            player2.gamesPlayed++;
+
+            // Record game in history
+            gameHistory.push({
+                id: Date.now(),
+                player1: player1.name,
+                player2: player2.name,
+                result: gameResult,
+                player1Change: player1Change,
+                player2Change: player2Change,
+                tournament: currentTournament,
+                timestamp: new Date().toISOString()
+            });
+
+            // Reset form
+            document.getElementById('player1').value = '';
+            document.getElementById('player2').value = '';
+            document.getElementById('isFirstTournament').checked = false;
+            document.querySelectorAll('.result-btn').forEach(btn => btn.classList.remove('selected'));
+            gameResult = null;
+
+            saveData();
+            updatePlayersList();
+            updateDropdowns();
+            updateStats();
+            
+            const resultText = gameResult === 'draw' ? 'Draw' : 
+                              gameResult === 'player1_win' ? `${player1.name} wins` : `${player2.name} wins`;
+            showAlert(`Game recorded: ${resultText}. Rating changes: ${player1.name} ${player1Change >= 0 ? '+' : ''}${player1Change}, ${player2.name} ${player2Change >= 0 ? '+' : ''}${player2Change}`, 'success');
+        }
+
+        function startTournament() {
+            const name = document.getElementById('tournamentName').value.trim();
+            if (!name) {
+                showAlert('Please enter a tournament name', 'error');
+                return;
+            }
+
+            currentTournament = name;
+            document.getElementById('tournamentName').value = '';
+            saveData();
+            updateStats();
+            showAlert(`Tournament "${name}" started!`, 'success');
+        }
+
+        function endTournament() {
+            if (!currentTournament) {
+                showAlert('No active tournament', 'error');
+                return;
+            }
+
+            // Award bonus points to top 3 players
+            const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
+            const bonuses = [25, 15, 10]; // 1st, 2nd, 3rd place bonuses
+
+            for (let i = 0; i < Math.min(3, sortedPlayers.length); i++) {
+                sortedPlayers[i].rating += bonuses[i];
+                sortedPlayers[i].tournaments++;
+            }
+
+            showAlert(`Tournament "${currentTournament}" ended! Bonus points awarded to top 3 players.`, 'success');
+            currentTournament = null;
+            saveData();
+            updatePlayersList();
+            updateStats();
+        }
+
+        function removePlayer(playerId) {
+            if (confirm('Are you sure you want to remove this player?')) {
+                players = players.filter(p => p.id !== playerId);
+                saveData();
+                updatePlayersList();
+                updateDropdowns();
+                updateStats();
+                showAlert('Player removed successfully', 'success');
+            }
+        }
+
+        function resetAllData() {
+            if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                players = [];
+                gameHistory = [];
+                currentTournament = null;
+                saveData();
+                updatePlayersList();
+                updateDropdowns();
+                updateStats();
+                showAlert('All data has been reset', 'success');
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalPlayers').textContent = players.length;
+            document.getElementById('totalGames').textContent = gameHistory.length;
+            document.getElementById('currentTournament').textContent = currentTournament || 'None';
+        }
+
+        function showAlert(message, type) {
+            const toastContainer = document.getElementById('toastContainer');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'toast-close';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = () => removeToast(toast);
+            
+            toast.appendChild(messageSpan);
+            toast.appendChild(closeBtn);
+            
+            toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                removeToast(toast);
+            }, 5000);
+        }
+
+        function removeToast(toast) {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 400);
+        }
+
+        // Initialize the application when page loads
+        init();
+    </script>
+</body>
+</html>
