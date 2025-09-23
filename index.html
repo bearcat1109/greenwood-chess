@@ -352,16 +352,16 @@
                 <h2>Record Game Result</h2>
                 <div class="game-form">
                     <div class="form-group">
-                        <label for="player1">Player 1:</label>
+                        <label for="player1">White:</label>
                         <select id="player1">
-                            <option value="">Select Player 1</option>
+                            <option value="">Select White</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label for="player2">Player 2:</label>
+                        <label for="player2">Black:</label>
                         <select id="player2">
-                            <option value="">Select Player 2</option>
+                            <option value="">Select Black</option>
                         </select>
                     </div>
 
@@ -631,8 +631,8 @@
             
             const options = players.map(p => `<option value="${p.id}">${p.name} (${p.rating})</option>`).join('');
             
-            player1Select.innerHTML = '<option value="">Select Player 1</option>' + options;
-            player2Select.innerHTML = '<option value="">Select Player 2</option>' + options;
+            player1Select.innerHTML = '<option value="">Select White</option>' + options;
+            player2Select.innerHTML = '<option value="">Select Black</option>' + options;
         }
 
         function selectResult(result) {
