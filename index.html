@@ -416,6 +416,19 @@
             </div>
 
             <div class="section players-list">
+                <h2>Player Game History</h2>
+                <div class="form-group">
+                    <label for="historySearch">Select Player to View History:</label>
+                    <select id="historySearch" onchange="showPlayerHistory()">
+                        <option value="">Select a player...</option>
+                    </select>
+                </div>
+                <div id="historyDisplay">
+                    <p style="color: #7f8c8d; text-align: center;">Select a player above to see their past matches.</p>
+                </div>
+            </div>
+
+            <div class="section players-list">
                 <h2>Players & Ratings</h2>
                 <div id="playersList"></div>
             </div>
@@ -628,11 +641,13 @@
         function updateDropdowns() {
             const player1Select = document.getElementById('player1');
             const player2Select = document.getElementById('player2');
+            const historySelect = document.getElementById('historySearch');
             
             const options = players.map(p => `<option value="${p.id}">${p.name} (${p.rating})</option>`).join('');
             
             player1Select.innerHTML = '<option value="">Select White</option>' + options;
             player2Select.innerHTML = '<option value="">Select Black</option>' + options;
+            historySelect.innerHTML = '<option value="">Select a player...</option>' + options;
         }
 
         function selectResult(result) {
@@ -862,6 +877,55 @@
                 }
             }, 400);
         }
+
+        // Script to allow player match history
+        function showPlayerHistory() {
+                const playerId = document.getElementById('historySearch').value;
+                const display = document.getElementById('historyDisplay');
+                
+                if (!playerId) {
+                    display.innerHTML = '<p style="color: #7f8c8d; text-align: center;">Select a player above to see their past matches.</p>';
+                    return;
+                }
+
+                const player = players.find(p => p.id == playerId);
+                // Filter history for games where the player was either White (player1) or Black (player2)
+                const matches = gameHistory.filter(game => 
+                    game.player1 === player.name || game.player2 === player.name
+                ).reverse(); // Newest games first
+
+                if (matches.length === 0) {
+                    display.innerHTML = `<p style="text-align: center; padding: 20px;">No games recorded for ${player.name} yet.</p>`;
+                    return;
+                }
+
+                display.innerHTML = matches.map(game => {
+                    const isPlayer1 = game.player1 === player.name;
+                    const change = isPlayer1 ? game.player1Change : game.player2Change;
+                    const opponent = isPlayer1 ? game.player2 : game.player1;
+                    
+                    // Determine result text for this specific player
+                    let outcome = "Draw";
+                    if ((isPlayer1 && game.result === 'player1_win') || (!isPlayer1 && game.result === 'player2_win')) {
+                        outcome = "Win";
+                    } else if (game.result !== 'draw') {
+                        outcome = "Loss";
+                    }
+
+                    return `
+                        <div class="player-card" style="font-size: 0.9em; margin-bottom: 8px;">
+                            <div>
+                                <strong>${new Date(game.timestamp).toLocaleDateString()}</strong>: 
+                                ${outcome} vs ${opponent} 
+                                <small>(${game.tournament || 'Casual'})</small>
+                            </div>
+                            <div class="player-rating" style="background: ${change >= 0 ? '#27ae60' : '#e74c3c'}">
+                                ${change >= 0 ? '+' : ''}${change}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
 
         // Initialize the application when page loads
         init();
